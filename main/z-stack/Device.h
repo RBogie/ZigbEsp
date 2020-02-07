@@ -7,6 +7,8 @@
 #include "ZStack.h"
 #include "Endpoint.h"
 
+#include "nvs.h"
+
 class Device {
 public:
     Device(uint64_t ieeeAddr, uint16_t networkAddress);
@@ -18,11 +20,14 @@ public:
     void updateLastSeen();
     bool isInterviewed();
     bool isInterviewInProgress();
-    void interview(ZStack& zstack);
+    void interview(ZStack& zstack, std::function<void(Device*)> onInterviewDone);
     DeviceLogicalType getType() const;
     uint16_t getManufacturerCode() const;
 
     Endpoint* getEndpoint(ClusterId clusterId);
+    void saveToStorage(nvs_handle storageHandle);
+    static std::shared_ptr<Device> restoreFromStorage(uint8_t* buff, size_t buffLen);
+    void printInfo();
 private:
     std::vector<Endpoint> endpoints;
     std::string modelId;
