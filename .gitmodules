@@ -1,0 +1,6 @@
+[submodule "components/espfs"]
+	path = components/espfs
+	url = https://github.com/RBogie/esp32-espfs.git
+[submodule "components/libesphttpd"]
+	path = components/libesphttpd
+	url = https://github.com/RBogie/libesphttpd.git

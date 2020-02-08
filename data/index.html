@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ZigbEsp Gateway</title>
+    <link rel="stylesheet" type="text/css" href="css/picnic.min.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body onload="onPageLoad()">
+    <script>
+        function doRequest(url, callback, method = 'get', data = {}) {
+            var req = new XMLHttpRequest();
+            req.addEventListener('load', (resp) => {
+                var e = resp.currentTarget
+                callback({
+                    status: e.status,
+                    content: e.response
+                })
+            });
+            req.open(method, url);
+            if(data) {
+                req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                req.send(JSON.stringify(data));
+            } else {
+                req.send()
+            }
+        }
+
+        function loadStatus() {
+            doRequest('/state', resp => {
+                var content = JSON.parse(resp.content)
+                document.getElementById('status').innerText = (content.state ? 'On' : 'Off')
+            })
+        }
+
+        function toggleState() {
+            doRequest('/state', resp => {
+                var content = JSON.parse(resp.content)
+                document.getElementById('status').innerText = (content.state ? 'On' : 'Off')
+            }, 'post', {
+                toggle: true
+            })
+        }
+
+        function onPageLoad() {
+            loadStatus();
+        }
+    </script>
+    <nav>
+        <a href="/" class="brand">
+            <span>ZigbEsp Gateway</span>
+        </a>
+        <input id="bmenu" type="checkbox" class="show">
+        <label for="bmenu" class="burger toggle pseudo button">Menu</label>
+        <div class="menu">
+            <a href="/devices" class="pseudo button icon-help-circled">Devices</a>
+            <a href="/settings" class="pseudo button icon-help-circled">Settings</a>
+        </div>
+    </nav>
+    <div class="content">
+        <section class="center">
+            <h3>Verlichting</h3>
+            <h2 id="status">Unknown</h2>
+            <button onclick="toggleState()">Toggle</button>
+        </section>
+    </div>
+</body>
+</html>

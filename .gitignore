@@ -1,2 +1,5 @@
 /build/
 /.idea/
+/data/.idea/
+/.vscode/
+*.old

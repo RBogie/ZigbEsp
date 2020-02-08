@@ -19,6 +19,8 @@ enum class ZclCommandId : uint8_t {
     GLOBAL_READ = 0,
     GLOBAL_READ_RSP = 1,
 
+    GEN_ONOFF_OFF = 0,
+    GEN_ONOFF_ON = 1,
     GEN_ONOFF_TOGGLE = 2,
 };
 
