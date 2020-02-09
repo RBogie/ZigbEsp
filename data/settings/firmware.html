@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ZigbEsp Gateway</title>
+    <link rel="stylesheet" type="text/css" href="/css/picnic.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+<body onload="onPageLoad()">
+    <script>
+        function humanFileSize(B,i){var e=i?1e3:1024;if(Math.abs(B)<e)return B+" B";var a=i?["kB","MB","GB","TB","PB","EB","ZB","YB"]:["KiB","MiB","GiB","TiB","PiB","EiB","ZiB","YiB"],t=-1;do B/=e,++t;while(Math.abs(B)>=e&&t<a.length-1);return B.toFixed(3)+" "+a[t]}
+
+        function doRequest(url, callback, method = 'get', data = {}) {
+            var req = new XMLHttpRequest();
+            req.addEventListener('load', (resp) => {
+                var e = resp.currentTarget
+                callback({
+                    status: e.status,
+                    content: e.response
+                })
+            });
+            req.open(method, url);
+            if(data) {
+                req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                req.send(data);
+            } else {
+                req.send()
+            }
+        }
+
+        function onPartitionInfo(info) {
+            var html = "";
+            var needsVerify = false;
+            for(var part of info.app) {
+                if(!part.verified)
+                    needsVerify = true;
+                html += '<article class="card full third-1000">\n' +
+                    '                    <h4>Partition <span>'+part.name+'</span></h4>\n' +
+                    '                    <table class="primary">\n' +
+                    '                        <tbody>\n' +
+                    '                        <tr>\n' +
+                    '                            <td>Size</td>\n' +
+                    '                            <td>'+humanFileSize(part.size,0)+'</td>\n' +
+                    '                        </tr>\n' +
+                    '                        <tr>\n' +
+                    '                            <td>App version</td>\n' +
+                    '                            <td>'+part.version+'</td>\n' +
+                    '                        </tr>\n' +
+                    '                        <tr>\n' +
+                    '                            <td>App valid:</td>\n' +
+                    '                            <td>'+(part.verified ? (part.valid?'Yes' : 'No') : 'Validating...')+'</td>\n' +
+                    '                        </tr>\n' +
+                    '                        <tr>\n' +
+                    '                            <td>Currently running:</td>\n' +
+                    '                            <td>'+(part.running?'Yes':'No')+'</td>\n' +
+                    '                        </tr>\n' +
+                    '                        <tr>\n' +
+                    '                            <td>Will run on next boot:</td>\n' +
+                    '                            <td>'+(part.bootset?'Yes':'No')+'</td>\n' +
+                    '                        </tr>\n' +
+                    '                        </tbody>\n' +
+                    '                    </table>\n' +
+                    '                </article>'
+            }
+            document.getElementById('appPartitions').innerHTML = html;
+
+            if(needsVerify) {
+                doRequest('/settings/firmware/verify', ({status, content}) => {
+                    var flashInfo = JSON.parse(content);
+                    onPartitionInfo(flashInfo);
+                });
+            }
+        }
+
+        function retrievePartitionInfo() {
+            doRequest('/settings/firmware/flashinfo.json', ({status, content}) => {
+                var flashInfo = JSON.parse(content);
+                onPartitionInfo(flashInfo);
+            });
+        }
+
+        function uploadFirmware(firmware) {
+            doRequest('/settings/firmware/upload', ({status, content}) => {
+                retrievePartitionInfo();
+            }, 'post', firmware);
+        }
+
+        function reboot() {
+            doRequest('/reboot', ({status, content}) => {
+            }, 'post');
+        }
+
+        function onPageLoad() {
+            retrievePartitionInfo();
+
+            document.getElementById('firmwareUpload').onchange = function() {
+                // fire the upload here
+                uploadFirmware(this.files[0])
+                this.value = ''
+            };
+        }
+    </script>
+    <nav>
+        <a href="/" class="brand">
+            <span>ZigbEsp Gateway</span>
+        </a>
+        <input id="bmenu" type="checkbox" class="show">
+        <label for="bmenu" class="burger toggle pseudo button">Menu</label>
+        <div class="menu">
+            <a href="/devices.html" class="pseudo button icon-help-circled">Devices</a>
+            <a href="/settings.html" class="pseudo button icon-help-circled active">Settings</a>
+        </div>
+    </nav>
+    <div class="content">
+        <button class="btn right" onclick="reboot()">Reboot</button>
+        <section class="center">
+            <h3>Firmware management</h3>
+            <div class="upload-btn-wrapper">
+                <button class="btn">Upload firmware</button>
+                <input type="file" name="firmware" id="firmwareUpload"/>
+            </div>
+            <section class="flex full three-1000" id="appPartitions">
+            </section>
+        </section>
+    </div>
+</body>
+</html>

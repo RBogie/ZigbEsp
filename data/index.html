@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ZigbEsp Gateway</title>
-    <link rel="stylesheet" type="text/css" href="css/picnic.min.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="/css/picnic.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
 </head>
 <body onload="onPageLoad()">
     <script>
@@ -45,6 +45,7 @@
 
         function onPageLoad() {
             loadStatus();
+            setInterval(() => loadStatus(), 1000);
         }
     </script>
     <nav>
@@ -54,13 +55,13 @@
         <input id="bmenu" type="checkbox" class="show">
         <label for="bmenu" class="burger toggle pseudo button">Menu</label>
         <div class="menu">
-            <a href="/devices" class="pseudo button icon-help-circled">Devices</a>
-            <a href="/settings" class="pseudo button icon-help-circled">Settings</a>
+            <a href="/devices.html" class="pseudo button icon-help-circled">Devices</a>
+            <a href="/settings.html" class="pseudo button icon-help-circled">Settings</a>
         </div>
     </nav>
     <div class="content">
         <section class="center">
-            <h3>Verlichting</h3>
+            <h3>Lighting</h3>
             <h2 id="status">Unknown</h2>
             <button onclick="toggleState()">Toggle</button>
         </section>

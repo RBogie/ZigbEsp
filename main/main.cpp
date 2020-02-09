@@ -21,6 +21,8 @@
 #include "libesphttpd/route.h"
 #include "cJSON.h"
 
+#include "http/firmware.h"
+
 static const char *TAG = "main";
 
 #define MAX_CONNECTIONS 32u
@@ -84,9 +86,43 @@ CgiStatus ICACHE_FLASH_ATTR cgiGetSetState(HttpdConnData *connData) {
 	return HTTPD_CGI_DONE;
 }
 
+static HttpdPlatTimerHandle resetTimer;
+
+static void ICACHE_FLASH_ATTR resetTimerCb(void *arg) {
+	esp_restart();
+}
+
+extern "C" {
+HttpdPlatTimerHandle httpdPlatTimerCreate(const char *name, int periodMs, int autoreload, void (*callback)(void *arg), void *ctx);
+void httpdPlatTimerStart(HttpdPlatTimerHandle timer);
+}
+
+CgiStatus ICACHE_FLASH_ATTR cgiReboot(HttpdConnData *connData) {
+	if (connData->isConnectionClosed) {
+		//Connection aborted. Clean up.
+		return HTTPD_CGI_DONE;
+	}
+
+    if(connData->requestType == HTTPD_METHOD_POST) {
+        HttpdPlatTimerHandle
+
+        resetTimer=httpdPlatTimerCreate("flashreset", 500, 0, resetTimerCb, NULL);
+        httpdPlatTimerStart(resetTimer);
+
+        httpdStartResponse(connData, 200);
+	    httpdEndHeaders(connData);
+
+    }
+
+	return HTTPD_CGI_DONE;
+}
 
 HttpdBuiltInUrl builtInUrls[] = {
     ROUTE_CGI("/state", cgiGetSetState),
+    ROUTE_CGI("/reboot", cgiReboot),
+    ROUTE_CGI("/settings/firmware/flashinfo.json", getFlashInfo),
+    ROUTE_CGI("/settings/firmware/verify", getFlashInfoVerified),
+    ROUTE_CGI("/settings/firmware/upload", uploadFirmware),
 	ROUTE_FILESYSTEM(),
 	ROUTE_END()
 };
