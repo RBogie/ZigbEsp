@@ -1,4 +1,5 @@
 #include "firmware.h"
+#include "utils.h"
 
 #include "cJSON.h"
 
@@ -35,22 +36,6 @@ typedef struct {
 	int skip;
 	const char *err;
 } UploadState;
-
-static void jsonResponseCommon(HttpdConnData *connData, cJSON *jsroot){
-	char *json = NULL;
-
-	httpdStartResponse(connData, 200);
-	httpdHeader(connData, "Cache-Control", "no-store, must-revalidate, no-cache, max-age=0");
-	httpdHeader(connData, "Content-Type", "application/json; charset=utf-8");
-	httpdEndHeaders(connData);
-	json = cJSON_Print(jsroot);
-    if (json)
-    {
-    	httpdSend(connData, json, -1);
-        cJSON_free(json);
-    }
-    cJSON_Delete(jsroot);
-}
 
 // Check that the header of the firmware blob looks like actual firmware...
 static int ICACHE_FLASH_ATTR checkBinHeader(void *buf) {
@@ -117,7 +102,7 @@ CgiStatus ICACHE_FLASH_ATTR getFlashInfo(HttpdConnData *connData) {
     esp_partition_iterator_release(it);
 
     cJSON *jsdatas = cJSON_AddArrayToObject(jsroot, "data");
-    it = esp_partition_find(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, (specify_partname)?(arg_1_buf):(NULL));
+    it = esp_partition_find(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, nullptr);
     while (it != NULL) {
         const esp_partition_t *it_partition = esp_partition_get(it);
         if (it_partition != NULL)

@@ -152,3 +152,7 @@ void Controller::removeDevice(std::shared_ptr<Device> device) {
         it++;
     }
 }
+
+std::vector<std::shared_ptr<Device>>& Controller::getDevices() {
+    return devices;
+}

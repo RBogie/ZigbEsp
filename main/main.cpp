@@ -46,7 +46,8 @@ CgiStatus ICACHE_FLASH_ATTR cgiGetSetState(HttpdConnData *connData) {
             if(cJSON_IsTrue(toggle)) {
                 state = !state;
 
-                for(auto& dev : controller.devices) {
+                auto devices = controller.getDevices();
+                for(auto& dev : devices) {
                     std::cout << "Got device" << std::endl;
                     auto endpoint = dev->getEndpoint(ClusterId::genOnOff);
                     if(endpoint) {
@@ -187,8 +188,8 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL));
 
     wifi_config_t wifi_config = {0};
-    memcpy(wifi_config.sta.ssid, "SSID", 20);
-    memcpy(wifi_config.sta.password, PASSWD", 17);
+    memcpy(wifi_config.sta.ssid, "Silence of the lans", 20);
+    memcpy(wifi_config.sta.password, "G1mmeIntern3t@22", 17);
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );

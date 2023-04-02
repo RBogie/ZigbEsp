@@ -345,7 +345,7 @@ typedef struct __attribute__ ((packed)){
     uint16_t profileid;
     uint16_t deviceid;
     uint8_t deviceversion;
-    uint8_t clusterInfo[0]; //placeholder for the variable cluster part. Only usable if we cast from a pointer to raw data
+    uint8_t clusterInfo[238];
 } ZdoSimpleDescRspReq;
 
 typedef struct __attribute__ ((packed)){

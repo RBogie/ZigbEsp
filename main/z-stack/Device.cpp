@@ -65,6 +65,21 @@ uint64_t Device::getIeeeAddr() const {
     return ieeeAddr;
 }
 
+std::string Device::getIeeeAddrStr() const {
+    char name[12];
+    if(!ieeeToStr(ieeeAddr, name, 12)) {
+        throw std::runtime_error("Could not convert ieeeAddr");
+    }
+    return std::string(name);
+}
+
+std::string& Device::getModelId() {
+    return modelId;
+}
+std::string& Device::getManufacturer() {
+    return manufacturer;
+}
+
 uint16_t Device::getNetworkAddress() const {
     return networkAddress;
 }
@@ -296,6 +311,15 @@ void Device::retrieveHwVersionDateCodeSwBuildId(ZStack &zstack, Endpoint &endpoi
     }
 }
 
+std::vector<const Endpoint*> Device::getEndpoints() const {
+    std::vector<const Endpoint*> endpoints;
+    endpoints.reserve(this->endpoints.size());
+    for(auto& endpoint : this->endpoints) {
+        endpoints.push_back(&endpoint);
+    }
+    return endpoints;
+}
+
 Endpoint* Device::getEndpoint(ClusterId clusterId) {
     for(auto& endpoint : endpoints) {
         if(endpoint.supportsInputCluster(clusterId))
@@ -368,13 +392,13 @@ void Device::saveToStorage(nvs_handle storageHandle) {
     memcpy(&(data[index]), modelId.c_str(), modelId.length());
     index += modelId.length();
     *((uint8_t*)&(data[index++])) = (uint8_t)manufacturer.length();
-    memcpy(&(data[index]), modelId.c_str(), manufacturer.length());
+    memcpy(&(data[index]), manufacturer.c_str(), manufacturer.length());
     index += manufacturer.length();
     *((uint8_t*)&(data[index++])) = (uint8_t)swDateCode.length();
-    memcpy(&(data[index]), modelId.c_str(), swDateCode.length());
+    memcpy(&(data[index]), swDateCode.c_str(), swDateCode.length());
     index += swDateCode.length();
     *((uint8_t*)&(data[index++])) = (uint8_t)swBuildId.length();
-    memcpy(&(data[index]), modelId.c_str(), swBuildId.length());
+    memcpy(&(data[index]), swBuildId.c_str(), swBuildId.length());
     index += swBuildId.length();
 
     *((uint8_t*)&(data[index++])) = (uint8_t)endpoints.size();

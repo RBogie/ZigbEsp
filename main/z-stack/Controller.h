@@ -8,10 +8,11 @@ class Controller {
 public:
     Controller();
     void start();
-    std::vector<std::shared_ptr<Device>> devices;
     ZStack* getZstack();
+    std::vector<std::shared_ptr<Device>>& getDevices();
 private:
     ZStack zstack;
+    std::vector<std::shared_ptr<Device>> devices;
 
     bool isJoingingDeviceAllowed(const uint64_t& ieeeAddr);
 

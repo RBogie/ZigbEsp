@@ -24,10 +24,15 @@ public:
     DeviceLogicalType getType() const;
     uint16_t getManufacturerCode() const;
 
+    std::vector<const Endpoint*> getEndpoints() const;
     Endpoint* getEndpoint(ClusterId clusterId);
     void saveToStorage(nvs_handle storageHandle);
     static std::shared_ptr<Device> restoreFromStorage(uint8_t* buff, size_t buffLen);
     void printInfo();
+
+    std::string getIeeeAddrStr() const;
+    std::string& getModelId();
+    std::string& getManufacturer();
 private:
     std::vector<Endpoint> endpoints;
     std::string modelId;
